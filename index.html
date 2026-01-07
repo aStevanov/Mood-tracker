@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mood Tracker</title>
+  <style>
+    :root {
+      --happy: #6ec6ff;
+      --sad: #5c6bc0;
+      --productive: #66bb6a;
+      --tired: #fff176;
+      --neutral: #ffb74d;
+      --angry: #ef5350;
+      --empty: #eeeeee;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #fafafa;
+      padding: 20px;
+      color: #333;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    .tracker {
+      display: grid;
+      grid-template-columns: repeat(13, 1fr);
+      gap: 4px;
+      max-width: 900px;
+    }
+
+    .month {
+      font-size: 12px;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .day {
+      width: 100%;
+      aspect-ratio: 1;
+      background: var(--empty);
+      cursor: pointer;
+      border-radius: 2px;
+    }
+
+    .legend {
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+      max-width: 900px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+    }
+
+    .swatch {
+      width: 18px;
+      height: 18px;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Mood Tracker</h1>
+
+<div class="tracker" id="tracker"></div>
+
+<div class="legend">
+  <div class="legend-item"><div class="swatch" style="background:var(--happy)"></div>Happy / relaxed</div>
+  <div class="legend-item"><div class="swatch" style="background:var(--sad)"></div>Sad / low</div>
+  <div class="legend-item"><div class="swatch" style="background:var(--productive)"></div>Productive</div>
+  <div class="legend-item"><div class="swatch" style="background:var(--tired)"></div>Tired / flat</div>
+  <div class="legend-item"><div class="swatch" style="background:var(--neutral)"></div>Neutral</div>
+  <div class="legend-item"><div class="swatch" style="background:var(--angry)"></div>Anxious / angry</div>
+</div>
+
+<script>
+  const moods = [
+    'empty',
+    'happy',
+    'sad',
+    'productive',
+    'tired',
+    'neutral',
+    'angry'
+  ];
+
+  const tracker = document.getElementById('tracker');
+  const dataKey = 'mood-tracker-data';
+  const saved = JSON.parse(localStorage.getItem(dataKey) || '{}');
+
+  const months = ['','J','F','M','A','M','J','J','A','S','O','N','D'];
+
+  // Month headers
+  months.forEach(m => {
+    const label = document.createElement('div');
+    label.className = 'month';
+    label.textContent = m;
+    tracker.appendChild(label);
+  });
+
+  // Days
+  for (let day = 1; day <= 31; day++) {
+    const dayLabel = document.createElement('div');
+    dayLabel.className = 'month';
+    dayLabel.textContent = day;
+    tracker.appendChild(dayLabel);
+
+    for (let month = 1; month <= 12; month++) {
+      const cell = document.createElement('div');
+      const id = `${month}-${day}`;
+      const mood = saved[id] || 'empty';
+
+      cell.className = 'day';
+      cell.dataset.mood = mood;
+      cell.style.background = `var(--${mood})`;
+
+      cell.onclick = () => {
+        let index = moods.indexOf(cell.dataset.mood);
+        index = (index + 1) % moods.length;
+        const nextMood = moods[index];
+        cell.dataset.mood = nextMood;
+        cell.style.background = `var(--${nextMood})`;
+        saved[id] = nextMood;
+        localStorage.setItem(dataKey, JSON.stringify(saved));
+      };
+
+      tracker.appendChild(cell);
+    }
+  }
+</script>
+
+</body>
+</html>
